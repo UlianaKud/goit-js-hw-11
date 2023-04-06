@@ -4,11 +4,7 @@
   justify-content: space-between;
   margin: 20px auto;
 }
-input {
-  border: 1px solid #000;
-  width: 400px;
-  padding: 10px 5px;
-}
+
 .btn-search {
   background-color: #189729;
   color: #fff;
@@ -19,6 +15,11 @@ input {
   &:focus {
     background-color: #10631b;
   }
+}
+input {
+  border: 1px solid #000;
+  width: 400px;
+  padding: 10px 5px;
 }
 .gallery {
   display: flex;
