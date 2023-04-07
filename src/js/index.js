@@ -7,15 +7,32 @@ import SimpleLightbox from 'simplelightbox';
 
 const searchFormEl = document.querySelector('.search-form');
 const galleryList = document.querySelector('.gallery');
+const spinnerContainer = document.querySelector('.spinner');
 
 const pixabayApi = new PixabayAPI();
 let gallery;
 let isLoading = false;
 
-document.addEventListener('scroll', () => {
+const showSpinner = () => {
+  spinnerContainer.classList.remove('is-spinner-hidden');
+}
+
+const hideSpinner = () => {
+  spinnerContainer.classList.add('is-spinner-hidden');
+}
+
+const shouldLoadMore = () => {
   const { height } = galleryList.getBoundingClientRect();
 
   if (height - window.pageYOffset < 1000 && !isLoading) {
+    return true;
+  }
+
+  return false;
+};
+
+document.addEventListener('scroll', () => {
+  if (shouldLoadMore()) {
     onLoadMore();
   }
 });
@@ -33,8 +50,11 @@ const onSearchFormSubmit = async event => {
   }
 
   try {
+    galleryList.innerHTML = '';
+    showSpinner();
     const { data } = await pixabayApi.fetchPhotos();
     if (!data.hits?.length) {
+      hideSpinner();
       galleryList.innerHTML = '';
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
@@ -43,7 +63,7 @@ const onSearchFormSubmit = async event => {
     }
 
     pixabayApi.totalHits = data.totalHits;
-
+    hideSpinner();
     galleryList.innerHTML = renderImagesList(data.hits);
     gallery = new SimpleLightbox('.gallery a');
 
@@ -61,9 +81,14 @@ const onLoadMore = async () => {
       return;
     }
     isLoading = true;
+    showSpinner();
     const { data } = await pixabayApi.fetchPhotos();
+    hideSpinner();
     galleryList.insertAdjacentHTML('beforeend', renderImagesList(data.hits));
     isLoading = false;
+    if (shouldLoadMore()) {
+      onLoadMore();
+    }
     gallery.refresh();
     const { height } = document
       .querySelector('.gallery')
