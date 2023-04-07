@@ -42,6 +42,8 @@ const onSearchFormSubmit = async event => {
       return;
     }
 
+    pixabayApi.totalHits = data.totalHits;
+
     galleryList.innerHTML = renderImagesList(data.hits);
     gallery = new SimpleLightbox('.gallery a');
 
@@ -55,11 +57,11 @@ const onLoadMore = async () => {
   pixabayApi.page += 1;
 
   try {
-    isLoading = true;
-    const { data } = await pixabayApi.fetchPhotos();
-    if (pixabayApi.page * pixabayApi.per_page >= data.totalHits) {
+    if ((pixabayApi.page - 1) * pixabayApi.per_page > pixabayApi.totalHits) {
       return;
     }
+    isLoading = true;
+    const { data } = await pixabayApi.fetchPhotos();
     galleryList.insertAdjacentHTML('beforeend', renderImagesList(data.hits));
     isLoading = false;
     gallery.refresh();
